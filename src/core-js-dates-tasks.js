@@ -135,8 +135,11 @@ function getCountDaysOnPeriod(dateStart, dateEnd) {
  * '2024-02-02', { start: '2024-02-02', end: '2024-03-02' } => true
  * '2024-02-10', { start: '2024-02-02', end: '2024-03-02' } => true
  */
-function isDateInPeriod(/* date, period */) {
-  throw new Error('Not implemented');
+function isDateInPeriod(date, period) {
+  const currentDay = new Date(date);
+  const startDay = new Date(period.start);
+  const endDay = new Date(period.end);
+  return startDay <= currentDay && currentDay <= endDay;
 }
 
 /**
@@ -150,8 +153,21 @@ function isDateInPeriod(/* date, period */) {
  * '1999-01-05T02:20:00.000Z' => '1/5/1999, 2:20:00 AM'
  * '2010-12-15T22:59:00.000Z' => '12/15/2010, 10:59:00 PM'
  */
-function formatDate(/* date */) {
-  throw new Error('Not implemented');
+function formatDate(date) {
+  const givenDate = new Date(date);
+  const params = {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: true,
+    timeZone: 'UTC',
+  };
+
+  const newDate = givenDate.toLocaleString('en-US', params);
+  return newDate;
 }
 
 /**
@@ -166,8 +182,18 @@ function formatDate(/* date */) {
  * 12, 2023 => 10
  * 1, 2024 => 8
  */
-function getCountWeekendsInMonth(/* month, year */) {
-  throw new Error('Not implemented');
+function getCountWeekendsInMonth(month, year) {
+  let weekendsCounter = 0;
+  const daysCounter = new Date(year, month, 0).getDate(0);
+
+  for (let i = 1; i <= daysCounter; i += 1) {
+    const day = new Date(year, month - 1, i).getDay();
+
+    if ([0, 6].includes(day)) {
+      weekendsCounter += 1;
+    }
+  }
+  return weekendsCounter;
 }
 
 /**
@@ -183,8 +209,24 @@ function getCountWeekendsInMonth(/* month, year */) {
  * Date(2024, 0, 31) => 5
  * Date(2024, 1, 23) => 8
  */
-function getWeekNumberByDate(/* date */) {
-  throw new Error('Not implemented');
+function getWeekNumberByDate(date) {
+  const adjustedDate = new Date(date.getTime());
+  adjustedDate.setHours(0, 0, 0, 0);
+
+  adjustedDate.setDate(
+    adjustedDate.getDate() + 3 - ((adjustedDate.getDay() + 6) % 7)
+  );
+
+  const week1 = new Date(adjustedDate.getFullYear(), 0, 1);
+  return (
+    1 +
+    Math.round(
+      ((adjustedDate.getTime() - week1.getTime()) / 86400000 -
+        3 +
+        ((week1.getDay() + 6) % 7)) /
+        7
+    )
+  );
 }
 
 /**
